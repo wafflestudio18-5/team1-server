@@ -19,7 +19,9 @@ class PostViewSet(viewsets.GenericViewSet):
     
     # POST /posts/
     def create(self, request):
-        data = request.data.copy()
+        data = request.data.copy()  
+        if data['content'] == '':
+            return Response({"error": "The post cannot be empty."}, status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -34,6 +36,8 @@ class PostViewSet(viewsets.GenericViewSet):
     def update(self, request, pk=None):
         post = self.get_object()    
         data = request.data.copy()
+        if data['content'] == '':
+            return Response({"error": "The post cannot be empty."}, status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(post, data=data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.update(post, serializer.validated_data)

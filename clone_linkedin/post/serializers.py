@@ -10,4 +10,6 @@ class PostSerializer(serializers.ModelSerializer):
             'id',
             'title',
             'content',
+            'createdAt',
+            'updatedAt',
         )

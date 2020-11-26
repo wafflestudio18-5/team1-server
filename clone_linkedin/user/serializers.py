@@ -11,4 +11,14 @@ class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(allow_blank=False)
     password = serializers.CharField()
 
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'firstName',
+            'lastName',
+            'email',
+            'password',
+        )
+
     

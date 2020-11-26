@@ -19,7 +19,6 @@ class School(models.Model):
     updatedAt = models.DateTimeField(auto_now=True)
 
 class Company(models.Model):
-    # One-to-many relationship between UserCompany and Company
     name = models.CharField(max_length=50) 
     location = models.CharField(max_length=50)
     createdAt = models.DateTimeField(auto_now_add=True)
@@ -28,6 +27,7 @@ class Company(models.Model):
 class UserSchool(models.Model):
     # Many-to-one relationship between UserSchool and UserProfile
     userProfile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    # Many-to-one relationship between UserSchool and School
     school = models.ForeignKey(School, on_delete=models.CASCADE)
     startYear = models.PositiveIntegerField()
     endYear = models.PositiveIntegerField()
@@ -38,6 +38,7 @@ class UserSchool(models.Model):
 class UserCompany(models.Model):
     # Many-to-one relationship between UserCompany and UserProfile
     userProfile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    # Many-to-one relationship between UserCompany and Company
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     startDate = models.DateField()
     endDate = models.DateField()    

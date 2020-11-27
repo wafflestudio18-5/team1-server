@@ -4,7 +4,7 @@ from rest_framework import status, viewsets
 # from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from post.serializers import PostSerializer
+from post.serializers import PostSerializer, PostDetailSerializer
 from post.models import Post
 
 # Create your views here.
@@ -12,6 +12,12 @@ from post.models import Post
 class PostViewSet(viewsets.GenericViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return PostDetailSerializer
+        else:
+            return PostSerializer
 
     # GET /posts/
     def list(self, request):

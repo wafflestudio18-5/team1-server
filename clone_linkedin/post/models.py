@@ -6,6 +6,7 @@ from django.db import models
 class Post(models.Model):
     title = models.CharField(max_length=50)
     content = models.TextField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
 

@@ -22,6 +22,7 @@ class PostViewSet(viewsets.GenericViewSet):
         data = request.data.copy()  
         if data['content'] == '':
             return Response({"error": "The post cannot be empty."}, status=status.HTTP_400_BAD_REQUEST)
+        data['user_id'] = 1                      # Set user with id 1 as the one who wrote posts. Should be updated after login implemented.
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()

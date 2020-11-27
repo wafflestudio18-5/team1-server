@@ -47,3 +47,6 @@ class PostViewSet(viewsets.GenericViewSet):
         return Response(serializer.data)
 
     # DELETE /posts/:id/
+    def destroy(self, request, pk=None):
+        self.get_object().delete()
+        return Response()

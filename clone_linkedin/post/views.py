@@ -21,8 +21,11 @@ class PostViewSet(viewsets.GenericViewSet):
 
     # GET /posts/
     def list(self, request):
-        return Response(self.get_serializer(self.get_queryset(), many=True).data)
-    
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
+
     # POST /posts/
     def create(self, request):
         data = request.data.copy()

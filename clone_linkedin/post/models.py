@@ -6,6 +6,7 @@ from django.db import models
 class Post(models.Model):
     title = models.CharField(max_length=50)
     content = models.TextField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
 
@@ -38,7 +39,7 @@ class PostReaction(models.Model):
 
 class Comment(models.Model):
     # Many-to-one relationship between Comment and Post
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, related_name = "comments", on_delete=models.CASCADE)
     # Many-to-one relationship between Comment and User 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()

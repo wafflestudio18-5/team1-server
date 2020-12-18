@@ -59,15 +59,27 @@ class CommentSerializer(serializers.ModelSerializer):
     userId = serializers.IntegerField(source='user.id', read_only=True)
     userFirstName = serializers.CharField(source='user.first_name', read_only=True)
     userLastName = serializers.CharField(source='user.last_name', read_only=True)
+    user_id = serializers.IntegerField(write_only=True)
+    post_id = serializers.IntegerField(write_only=True)
 
     class Meta:
         model = Comment
         fields = (
             'id',
             'content',
+            'likes',
+            'createdAt',
+            'updatedAt',
             'userId',
             'userFirstName',
             'userLastName',
             'createdAt',
             'updatedAt',
+            'user_id',
+            'post_id',
         )
+
+    def create(self, validated_data):
+        validated_data['user'] = User.objects.get(id=validated_data.pop('user_id'))
+        validated_data['post'] = Post.objects.get(id=validated_data.pop('post_id'))
+        return super(CommentSerializer, self).create(validated_data)

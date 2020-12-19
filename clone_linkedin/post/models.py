@@ -31,7 +31,7 @@ class PostReaction(models.Model):
 
     type = models.CharField(max_length=10, choices=TYPE_CHOICES, default=LIKE)
     # Many-to-one relationship between PostReaction and Post
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, related_name = "postReactions", on_delete=models.CASCADE)
     # Many-to-one relationship between PostReaction and User 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     createdAt = models.DateTimeField(auto_now_add=True)

@@ -32,6 +32,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
     userId = serializers.IntegerField(source='user.id')
     userFirstName = serializers.CharField(source='user.first_name')
     userLastName = serializers.CharField(source='user.last_name')
+    postReactions = serializers.SerializerMethodField() 
     comments = serializers.SerializerMethodField()
 
     class Meta:
@@ -45,15 +46,42 @@ class PostDetailSerializer(serializers.ModelSerializer):
             'userId',
             'userFirstName',
             'userLastName',
+            'postReactions',
             'comments',
         )
 
-    # def get_post_reactions(self, post):
-    
+    def get_postReactions(self, post):
+        return PostReactionSerializer(post.postReactions, many=True).data 
+
     def get_comments(self, post):
         return CommentSerializer(post.comments, many=True).data
 
-# class PostReactionSerializer(serializers.ModelSerializer):
+class PostReactionSerializer(serializers.ModelSerializer):
+    userId = serializers.IntegerField(source='user.id', read_only=True)
+    userFirstName = serializers.CharField(source='user.first_name', read_only=True)
+    userLastName = serializers.CharField(source='user.last_name', read_only=True)   
+    user_id = serializers.IntegerField(write_only=True)
+    post_id = serializers.IntegerField(write_only=True)
+
+    class Meta:
+        model = PostReaction
+        fields = (
+            'id',
+            'type',
+            # additional fields
+            'userId',
+            'userFirstName',
+            'userLastName',
+            'createdAt',
+            'updatedAt',
+            'user_id',
+            'post_id',
+        )
+    
+    def create(self, validated_data):
+        validated_data['user'] = User.objects.get(id=validated_data.pop('user_id'))
+        validated_data['post'] = Post.objects.get(id=validated_data.pop('post_id'))
+        return super(PostReactionSerializer, self).create(validated_data)
 
 class CommentSerializer(serializers.ModelSerializer):
     userId = serializers.IntegerField(source='user.id', read_only=True)

@@ -2,6 +2,7 @@
 
 from rest_framework import status, viewsets
 # from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.contrib.auth.models import User
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
@@ -63,9 +64,12 @@ class PostViewSet(viewsets.GenericViewSet):
         post = self.get_object()
         data = request.data.copy()
         if self.request.method == 'GET':
-            reaction = self.get_object().postReactions
-            return Response(self.get_serializer(reaction).data)
+            reaction = self.get_object().postReactions.all()
+            return Response(self.get_serializer(reaction, many=True).data)
         elif self.request.method == 'POST':
+            user = User.objects.get(id=1)          # Needs to be fixed after login implemented.
+            if self.get_object().postReactions.filter(user=user).exists():
+                return Response({"error": "Reaction already made."}, status=status.HTTP_400_BAD_REQUEST)
             data['user_id'] = 1
             data['post_id'] = post.id 
             serializer = self.get_serializer(data=data)
@@ -78,6 +82,7 @@ class PostViewSet(viewsets.GenericViewSet):
             serializer.update(serializer.validated_data)
             return Response(serializer.data) 
         elif self.request.method == 'DELETE':
-            self.get_object().delete()
-            return Response() 
-        
+            user = User.objects.get(id=1)       # Needs to be fixed after login implemented.
+            reaction = self.get_object().postReactions.get(user=user)     # Error if multiple reactions by the user exist
+            reaction.delete()
+            return Response()

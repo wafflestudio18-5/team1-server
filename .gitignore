@@ -1,6 +1,6 @@
 
 *.iml
-.idea/.gitignore
+.idea
 
 ### Django ###
 *.log

@@ -83,6 +83,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 5, 
 }
 
+
 REST_USE_JWT = True
 
 ROOT_URLCONF = 'clone_linkedin.urls'

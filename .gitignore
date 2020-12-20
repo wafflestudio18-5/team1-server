@@ -1,8 +1,6 @@
 
-# Created by https://www.toptal.com/developers/gitignore/api/macos,pycharm,django,python
-# Edit at https://www.toptal.com/developers/gitignore?templates=macos,pycharm,django,python
-
 *.iml
+
 ### Django ###
 *.log
 *.pot
@@ -343,3 +341,4 @@ fabric.properties
 # profiling data
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,pycharm,django,python
+

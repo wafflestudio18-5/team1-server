@@ -125,7 +125,7 @@ AUTHENTICATION_BACKENDS = (
 DATABASES = { 
     'default': { 
         'ENGINE': 'django.db.backends.mysql', 
-        'HOST': 'localhost', 
+        'HOST': 'waffle-backend.cwyhyaoeudht.ap-northeast-2.rds.amazonaws.com', 
         'PORT': 3306, 
         'NAME': 'clone_linkedin', # database name
         'USER': 'clone-linkedin', 

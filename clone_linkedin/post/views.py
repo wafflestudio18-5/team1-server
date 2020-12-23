@@ -5,6 +5,7 @@ from rest_framework import status, viewsets
 from django.contrib.auth.models import User
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from django.shortcuts import get_object_or_404
 
 from post.serializers import PostSerializer, PostDetailSerializer, PostReactionSerializer 
 from post.models import Post
@@ -64,7 +65,7 @@ class PostViewSet(viewsets.GenericViewSet):
         post = self.get_object()
         data = request.data.copy()
         if self.request.method == 'GET':
-            reaction = self.get_object().postReactions.all()
+            reaction = post.postReactions.all()
             return Response(self.get_serializer(reaction, many=True).data)
         elif self.request.method == 'POST':
             user = User.objects.get(id=1)          # Needs to be fixed after login implemented.
@@ -77,10 +78,12 @@ class PostViewSet(viewsets.GenericViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         elif self.request.method == 'PUT':
-            serializer = self.get_serializer(data=data) 
-            serializer.is_valid(raise_exception=True) 
-            serializer.update(serializer.validated_data)
-            return Response(serializer.data) 
+            user = User.objects.get(id=1)          # Needs to be fixed after login implemented.
+            reaction = get_object_or_404(post.postReactions, user=user)
+            serializer = self.get_serializer(reaction, data=data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.update(reaction, serializer.validated_data)
+            return Response(serializer.data)     
         elif self.request.method == 'DELETE':
             user = User.objects.get(id=1)       # Needs to be fixed after login implemented.
             reaction = self.get_object().postReactions.get(user=user)     # Error if multiple reactions by the user exist

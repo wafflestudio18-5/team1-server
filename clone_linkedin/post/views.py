@@ -1,6 +1,6 @@
 # from django.shortcuts import render
 
-from rest_framework import status, viewsets, generics, filters 
+from rest_framework import status, viewsets, filters 
 # from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -8,7 +8,6 @@ from rest_framework.decorators import action
 from post.serializers import PostSerializer, PostDetailSerializer, CommentSerializer
 from post.models import Post, Comment
 import django_filters.rest_framework
-from django_filters.rest_framework import DjangoFilterBackend 
 
 # Create your views here.
 
@@ -30,11 +29,9 @@ class PostViewSet(viewsets.GenericViewSet):
     def list(self, request):
         queryset = self.get_queryset()
         filter_backends = self.filter_queryset(queryset)
-        serializer = self.get_serializer(filter_backends, many=True)
-        return Response(serializer.data)
-        # page = self.paginate_queryset(queryset)
-        # serializer = self.get_serializer(page, many=True)
-        # return self.get_paginated_response(serializer.data)
+        page = self.paginate_queryset(filter_backends)
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data) 
 
     # POST /posts/
     def create(self, request):

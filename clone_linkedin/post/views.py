@@ -13,7 +13,7 @@ from post.models import Post, Comment
 class PostViewSet(viewsets.GenericViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    search_fields = ['title', 'content', 'userFirstName', 'userLastName']
+    search_fields = ['title', 'content']
     filter_backends = (filters.SearchFilter, )
 
     def get_serializer_class(self):

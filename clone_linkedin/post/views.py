@@ -7,7 +7,6 @@ from rest_framework.decorators import action
 
 from post.serializers import PostSerializer, PostDetailSerializer, CommentSerializer
 from post.models import Post, Comment
-import django_filters.rest_framework
 
 # Create your views here.
 

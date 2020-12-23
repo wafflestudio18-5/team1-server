@@ -4,6 +4,7 @@ source ~/.bash_profile
 
 cd ~/team1-server
 git pull origin deploy
+git pull origin main
 sudo cp deployment/nginx.conf /etc/nginx/nginx.conf
 sudo cp deployment/sites-available/clone-linkedin.conf /etc/nginx/sites-available/clone-linkedin.conf
 

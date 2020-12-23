@@ -1,18 +1,22 @@
 # from django.shortcuts import render
 
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, generics, filters 
 # from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
 from post.serializers import PostSerializer, PostDetailSerializer, CommentSerializer
 from post.models import Post, Comment
+import django_filters.rest_framework
+from django_filters.rest_framework import DjangoFilterBackend 
 
 # Create your views here.
 
 class PostViewSet(viewsets.GenericViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+    search_fields = ['title', 'content']
+    filter_backends = (filters.SearchFilter, )
 
     def get_serializer_class(self):
         if self.action == 'comment':
@@ -25,9 +29,12 @@ class PostViewSet(viewsets.GenericViewSet):
     # GET /posts/
     def list(self, request):
         queryset = self.get_queryset()
-        page = self.paginate_queryset(queryset)
-        serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        filter_backends = self.filter_queryset(queryset)
+        serializer = self.get_serializer(filter_backends, many=True)
+        return Response(serializer.data)
+        # page = self.paginate_queryset(queryset)
+        # serializer = self.get_serializer(page, many=True)
+        # return self.get_paginated_response(serializer.data)
 
     # POST /posts/
     def create(self, request):
@@ -68,3 +75,5 @@ class PostViewSet(viewsets.GenericViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+

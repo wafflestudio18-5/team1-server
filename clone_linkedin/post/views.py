@@ -7,8 +7,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
 
-from post.serializers import PostSerializer, PostDetailSerializer, PostReactionSerializer 
-from post.models import Post
+from post.serializers import PostSerializer, PostDetailSerializer, PostReactionSerializer, CommentSerializer 
+from post.models import Post, Comment
 
 # Create your views here.
 
@@ -19,6 +19,8 @@ class PostViewSet(viewsets.GenericViewSet):
     def get_serializer_class(self):
         if self.action == 'reaction':
             return PostReactionSerializer
+        elif self.action == 'comment':
+            return CommentSerializer
         elif self.action == 'retrieve':
             return PostDetailSerializer
         else:
@@ -47,7 +49,7 @@ class PostViewSet(viewsets.GenericViewSet):
 
     # PUT /posts/:id/
     def update(self, request, pk=None):
-        post = self.get_object()    
+        post = self.get_object()
         data = request.data.copy()
         serializer = self.get_serializer(post, data=data, partial=True)
         serializer.is_valid(raise_exception=True)
@@ -89,3 +91,16 @@ class PostViewSet(viewsets.GenericViewSet):
             reaction = self.get_object().postReactions.get(user=user)     # Error if multiple reactions by the user exist
             reaction.delete()
             return Response()
+
+    @action(methods=['post'], detail=True)
+    def comment(self, request, pk=None):
+        post = self.get_object()
+        data = request.data.copy()
+        data['user_id'] = 1                      # Set user with id 1 as the one who wrote comment. Should be updated after login implemented.
+        data['post_id'] = post.id
+        data['likes'] = 0
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+

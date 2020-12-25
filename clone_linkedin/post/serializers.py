@@ -10,6 +10,7 @@ class PostSerializer(serializers.ModelSerializer):
     userLastName = serializers.CharField(source='user.last_name', read_only=True)
     user_id = serializers.IntegerField(write_only=True)
     userSchool = serializers.SerializerMethodField()
+    userCompany = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
@@ -24,6 +25,7 @@ class PostSerializer(serializers.ModelSerializer):
             'userLastName',
             'user_id',
             'userSchool',
+            'userCompany',
         )
 
     def create(self, validated_data):
@@ -36,12 +38,19 @@ class PostSerializer(serializers.ModelSerializer):
             return None
         return userSchools.latest('endYear', 'startYear').school.name
 
+    def get_userCompany(self, post):
+        userCompanies = post.user.linkedin_user.usercompany_set.all()
+        if not userCompanies.exists():
+            return None
+        return userCompanies.latest('endDate', 'startDate').company.name
+
 class PostDetailSerializer(serializers.ModelSerializer):
     userId = serializers.IntegerField(source='user.id')
     userFirstName = serializers.CharField(source='user.first_name')
     userLastName = serializers.CharField(source='user.last_name')
     comments = serializers.SerializerMethodField()
     userSchool = serializers.SerializerMethodField()
+    userCompany = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
@@ -55,6 +64,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
             'userFirstName',
             'userLastName',
             'userSchool',
+            'userCompany',
             'comments',
         )
 
@@ -68,6 +78,12 @@ class PostDetailSerializer(serializers.ModelSerializer):
         if not userSchools.exists():
             return None
         return userSchools.latest('endYear', 'startYear').school.name
+
+    def get_userCompany(self, post):
+        userCompanies = post.user.linkedin_user.usercompany_set.all()
+        if not userCompanies.exists():
+            return None
+        return userCompanies.latest('endDate', 'startDate').company.name
 
 # class PostReactionSerializer(serializers.ModelSerializer):
 

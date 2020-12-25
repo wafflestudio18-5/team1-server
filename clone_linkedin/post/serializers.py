@@ -14,10 +14,10 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
         fields = (
             'id',
-            'title',
             'content',
             'createdAt',
             'updatedAt',
+            'modified',
             'userId',
             'userFirstName',
             'userLastName',
@@ -38,10 +38,10 @@ class PostDetailSerializer(serializers.ModelSerializer):
         model = Post
         fields = (
             'id',
-            'title',
             'content',
             'createdAt',
             'updatedAt',
+            'modified',
             'userId',
             'userFirstName',
             'userLastName',

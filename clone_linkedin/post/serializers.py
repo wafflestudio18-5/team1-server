@@ -33,13 +33,13 @@ class PostSerializer(serializers.ModelSerializer):
         return super(PostSerializer, self).create(validated_data)
 
     def get_userSchool(self, post):
-        userSchools = post.user.linkedin_user.userschool_set.all()
+        userSchools = post.user.linkedin_user.userschool_set.all()          # Error if UserProfile doesn't exist.
         if not userSchools.exists():
             return None
         return userSchools.latest('endYear', 'startYear').school.name
 
     def get_userCompany(self, post):
-        userCompanies = post.user.linkedin_user.usercompany_set.all()
+        userCompanies = post.user.linkedin_user.usercompany_set.all()       # Error if UserProfile doesn't exist.
         if not userCompanies.exists():
             return None
         return userCompanies.latest('endDate', 'startDate').company.name
@@ -74,13 +74,13 @@ class PostDetailSerializer(serializers.ModelSerializer):
         return CommentSerializer(post.comments, many=True).data
 
     def get_userSchool(self, post):
-        userSchools = post.user.linkedin_user.userschool_set.all()
+        userSchools = post.user.linkedin_user.userschool_set.all()              # Error if UserProfile doesn't exist.
         if not userSchools.exists():
             return None
         return userSchools.latest('endYear', 'startYear').school.name
 
     def get_userCompany(self, post):
-        userCompanies = post.user.linkedin_user.usercompany_set.all()
+        userCompanies = post.user.linkedin_user.usercompany_set.all()           # Error if UserProfile doesn't exist.
         if not userCompanies.exists():
             return None
         return userCompanies.latest('endDate', 'startDate').company.name

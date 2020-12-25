@@ -9,6 +9,8 @@ class PostSerializer(serializers.ModelSerializer):
     userFirstName = serializers.CharField(source='user.first_name', read_only=True)
     userLastName = serializers.CharField(source='user.last_name', read_only=True)
     user_id = serializers.IntegerField(write_only=True)
+    userSchool = serializers.SerializerMethodField()
+    userCompany = serializers.SerializerMethodField
 
     class Meta:
         model = Post
@@ -22,11 +24,18 @@ class PostSerializer(serializers.ModelSerializer):
             'userFirstName',
             'userLastName',
             'user_id',
+            'userSchool',
         )
 
     def create(self, validated_data):
         validated_data['user'] = User.objects.get(id=validated_data.pop('user_id'))
         return super(PostSerializer, self).create(validated_data)
+
+    def get_userSchool(self, post):
+        userSchools = post.user.linkedin_user.userschool_set
+        if not userSchools.exists():
+            return None
+        return userSchools.latest('endYear', 'startYear')[0]
 
 class PostDetailSerializer(serializers.ModelSerializer):
     userId = serializers.IntegerField(source='user.id')

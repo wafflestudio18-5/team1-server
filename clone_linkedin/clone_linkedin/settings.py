@@ -76,7 +76,7 @@ MIDDLEWARE = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        #'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -106,7 +106,7 @@ TEMPLATES = [
 
 SITE_ID = 1
 
-LOGIN_REDIRECT_URL = '/posts/' # 로그인 후 돌아올 URL
+LOGIN_REDIRECT_URL = '/accounts/tokenize/' # 로그인 후 돌아올 URL
 ACCOUNT_LOGOUT_REDIRECT_URL = '/accounts/login/'
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
 SOCIALACCOUNT_STORE_TOKENS =True

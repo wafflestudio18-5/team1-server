@@ -3,6 +3,7 @@
 source ~/.bash_profile
 
 cd ~/team1-server
+git checkout deploy
 git pull origin deploy
 git pull origin main
 sudo cp deployment/nginx.conf /etc/nginx/nginx.conf

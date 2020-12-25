@@ -30,7 +30,14 @@ ALLOWED_HOSTS = [
     '13.209.8.137',
     'localhost',
     '127.0.0.1',
+    'http://localhost:3000',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:3000',
+    'http://localhost:8000',
+)
 
 
 # Application definition
@@ -54,6 +61,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'rest_auth',
     'rest_auth.registration',
+    'corsheaders',
 ]
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -76,6 +84,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 REST_FRAMEWORK = {

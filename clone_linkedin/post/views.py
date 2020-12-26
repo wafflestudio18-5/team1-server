@@ -88,7 +88,7 @@ class PostViewSet(viewsets.GenericViewSet):
             return Response(serializer.data)     
         elif self.request.method == 'DELETE':
             user = User.objects.get(id=1)       # Needs to be fixed after login implemented.
-            reaction = self.get_object().postReactions.get(user=user)     # Error if multiple reactions by the user exist
+            reaction = get_object_or_404(self.get_object().postReactions, user=user)     # Error if multiple reactions by the user exist
             reaction.delete()
             return Response()
 
@@ -103,4 +103,3 @@ class PostViewSet(viewsets.GenericViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-

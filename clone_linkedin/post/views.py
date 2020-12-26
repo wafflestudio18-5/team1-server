@@ -24,6 +24,7 @@ class PostViewSet(viewsets.GenericViewSet):
 
     # GET /posts/
     def list(self, request):
+        print("user는 : ", request.user)
         queryset = self.get_queryset()
         page = self.paginate_queryset(queryset)
         serializer = self.get_serializer(page, many=True)

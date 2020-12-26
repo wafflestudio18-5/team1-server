@@ -1,6 +1,6 @@
 # from django.shortcuts import render
 
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, filters 
 # from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth.models import User
 from rest_framework.response import Response
@@ -15,6 +15,8 @@ from post.models import Post, Comment
 class PostViewSet(viewsets.GenericViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+    search_fields = ['content']
+    filter_backends = (filters.SearchFilter, )
 
     def get_serializer_class(self):
         if self.action == 'reaction':
@@ -29,9 +31,10 @@ class PostViewSet(viewsets.GenericViewSet):
     # GET /posts/
     def list(self, request):
         queryset = self.get_queryset()
-        page = self.paginate_queryset(queryset)
+        filter_backends = self.filter_queryset(queryset)
+        page = self.paginate_queryset(filter_backends)
         serializer = self.get_serializer(page, many=True)
-        return self.get_paginated_response(serializer.data)
+        return self.get_paginated_response(serializer.data) 
 
     # POST /posts/
     def create(self, request):
@@ -103,3 +106,5 @@ class PostViewSet(viewsets.GenericViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+

@@ -48,6 +48,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
     userId = serializers.IntegerField(source='user.id')
     userFirstName = serializers.CharField(source='user.first_name')
     userLastName = serializers.CharField(source='user.last_name')
+    postReactions = serializers.SerializerMethodField() 
     comments = serializers.SerializerMethodField()
     userSchool = serializers.SerializerMethodField()
     userCompany = serializers.SerializerMethodField()
@@ -65,10 +66,12 @@ class PostDetailSerializer(serializers.ModelSerializer):
             'userLastName',
             'userSchool',
             'userCompany',
+            'postReactions',
             'comments',
         )
 
-    # def get_post_reactions(self, post):
+    def get_postReactions(self, post):
+        return PostReactionSerializer(post.postReactions, many=True).data 
 
     def get_comments(self, post):
         return CommentSerializer(post.comments, many=True).data
@@ -85,7 +88,37 @@ class PostDetailSerializer(serializers.ModelSerializer):
             return None
         return userCompanies.latest('endDate', 'startDate').company.name
 
-# class PostReactionSerializer(serializers.ModelSerializer):
+class PostReactionSerializer(serializers.ModelSerializer):
+    userId = serializers.IntegerField(source='user.id', read_only=True)
+    userFirstName = serializers.CharField(source='user.first_name', read_only=True)
+    userLastName = serializers.CharField(source='user.last_name', read_only=True)   
+    user_id = serializers.IntegerField(write_only=True)
+    post_id = serializers.IntegerField(write_only=True)
+
+    class Meta:
+        model = PostReaction
+        fields = (
+            'id',
+            'type',
+            # additional fields
+            'userId',
+            'userFirstName',
+            'userLastName',
+            'createdAt',
+            'updatedAt',
+            'user_id',
+            'post_id',
+        )
+    
+    def create(self, validated_data):
+        validated_data['user'] = User.objects.get(id=validated_data.pop('user_id'))
+        validated_data['post'] = Post.objects.get(id=validated_data.pop('post_id'))
+        return super(PostReactionSerializer, self).create(validated_data)
+
+    def update(self, instance, validated_data):
+        validated_data.pop('user_id', None)
+        validated_data.pop('post_id', None)
+        return super(PostReactionSerializer, self).update(instance, validated_data)
 
 class CommentSerializer(serializers.ModelSerializer):
     userId = serializers.IntegerField(source='user.id', read_only=True)
@@ -115,3 +148,4 @@ class CommentSerializer(serializers.ModelSerializer):
         validated_data['user'] = User.objects.get(id=validated_data.pop('user_id'))
         validated_data['post'] = Post.objects.get(id=validated_data.pop('post_id'))
         return super(CommentSerializer, self).create(validated_data)
+

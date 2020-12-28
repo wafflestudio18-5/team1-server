@@ -31,6 +31,9 @@ class PostViewSet(viewsets.GenericViewSet):
     # GET /posts/
     def list(self, request):
         queryset = self.get_queryset()
+        param = request.query_params
+        if param.get('order', '') == 'latest':
+            queryset = queryset.order_by('-updatedAt')
         filter_backends = self.filter_queryset(queryset)
         page = self.paginate_queryset(filter_backends)
         serializer = self.get_serializer(page, many=True)

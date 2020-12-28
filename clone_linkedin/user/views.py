@@ -39,6 +39,7 @@ class UserViewSet(viewsets.GenericViewSet):
         password = request.data.get('password')
 
         user = authenticate(request, username=email, password=password)
+        print(user)
         if user:
             login(request, user, backend="django.contrib.auth.backends.ModelBackend")
 

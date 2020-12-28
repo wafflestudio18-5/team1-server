@@ -50,4 +50,16 @@ class UserNameSerializer(serializers.ModelSerializer):
         user.last_name = last_name
         return super(UserNameSerializer, self).update(user, validated_data)
 
+class SocialSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(allow_blank=False)
+    username = serializers.CharField()
+
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'email',
+            'username'
+        )
+
     

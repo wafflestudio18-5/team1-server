@@ -42,27 +42,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'post.apps.PostConfig',
     'user.apps.UserConfig',
-    'accounts.apps.AccountsConfig',
-    'django.contrib.sites',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-    'rest_auth',
-    'rest_auth.registration',
+    'corsheaders'
 ]
-
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
-        }
-    }
-}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -71,20 +52,26 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_WHITELIST = (
+    'https://localhost:3000',
+    'https://127.0.0.1:3000'
+)
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
     ),
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_PAGINATION_CLASS': (
+        'rest_framework.pagination.PageNumberPagination'
+    ),
     'PAGE_SIZE': 5, 
 }
 
-
-REST_USE_JWT = True
 
 ROOT_URLCONF = 'clone_linkedin.urls'
 
@@ -104,19 +91,11 @@ TEMPLATES = [
     },
 ]
 
-SITE_ID = 1
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '927523383935-oo65e954d6ugud2roj8ck4l7ai4cfds0.apps.googleusercontent.com'
 
-LOGIN_REDIRECT_URL = '/accounts/tokenize/' # 로그인 후 돌아올 URL
-ACCOUNT_LOGOUT_REDIRECT_URL = '/accounts/login/'
-ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False
-SOCIALACCOUNT_STORE_TOKENS =True
 
 WSGI_APPLICATION = 'clone_linkedin.wsgi.application'
 
-AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
-)
 
 
 # Database

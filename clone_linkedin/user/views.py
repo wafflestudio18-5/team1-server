@@ -39,7 +39,6 @@ class UserViewSet(viewsets.GenericViewSet):
         password = request.data.get('password')
 
         user = authenticate(request, username=email, password=password)
-        print(user)
         if user:
             login(request, user, backend="django.contrib.auth.backends.ModelBackend")
 
@@ -97,7 +96,6 @@ class SocialLoginViewSet(viewsets.GenericViewSet):
     @action(detail=False, methods=['POST'])
     @permission_classes((AllowAny,))
     def login(self, request):
-        print(request.data)
         client_id = settings.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY
         idinfo = id_token.verify_oauth2_token(request.data['tokenId'], requests.Request(), client_id)
 
@@ -116,7 +114,6 @@ class SocialLoginViewSet(viewsets.GenericViewSet):
 
             token, _ = Token.objects.get_or_create(user=user)
             data['token'] = user.auth_token.key
-            print(data)
             return Response(data, status=status.HTTP_201_CREATED)
         
         data = self.get_serializer(user).data

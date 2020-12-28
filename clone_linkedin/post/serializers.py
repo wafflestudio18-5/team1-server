@@ -9,24 +9,40 @@ class PostSerializer(serializers.ModelSerializer):
     userFirstName = serializers.CharField(source='user.first_name', read_only=True)
     userLastName = serializers.CharField(source='user.last_name', read_only=True)
     user_id = serializers.IntegerField(write_only=True)
+    userSchool = serializers.SerializerMethodField()
+    userCompany = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
         fields = (
             'id',
-            'title',
             'content',
             'createdAt',
             'updatedAt',
+            'modified',
             'userId',
             'userFirstName',
             'userLastName',
             'user_id',
+            'userSchool',
+            'userCompany',
         )
 
     def create(self, validated_data):
         validated_data['user'] = User.objects.get(id=validated_data.pop('user_id'))
         return super(PostSerializer, self).create(validated_data)
+
+    def get_userSchool(self, post):
+        userSchools = post.user.linkedin_user.userschool_set.all()          # Error if UserProfile doesn't exist.
+        if not userSchools.exists():
+            return None
+        return userSchools.latest('endYear', 'startYear').school.name
+
+    def get_userCompany(self, post):
+        userCompanies = post.user.linkedin_user.usercompany_set.all()       # Error if UserProfile doesn't exist.
+        if not userCompanies.exists():
+            return None
+        return userCompanies.latest('endDate', 'startDate').company.name
 
 class PostDetailSerializer(serializers.ModelSerializer):
     userId = serializers.IntegerField(source='user.id')
@@ -34,18 +50,22 @@ class PostDetailSerializer(serializers.ModelSerializer):
     userLastName = serializers.CharField(source='user.last_name')
     postReactions = serializers.SerializerMethodField() 
     comments = serializers.SerializerMethodField()
+    userSchool = serializers.SerializerMethodField()
+    userCompany = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
         fields = (
             'id',
-            'title',
             'content',
             'createdAt',
             'updatedAt',
+            'modified',
             'userId',
             'userFirstName',
             'userLastName',
+            'userSchool',
+            'userCompany',
             'postReactions',
             'comments',
         )
@@ -55,6 +75,18 @@ class PostDetailSerializer(serializers.ModelSerializer):
 
     def get_comments(self, post):
         return CommentSerializer(post.comments, many=True).data
+
+    def get_userSchool(self, post):
+        userSchools = post.user.linkedin_user.userschool_set.all()              # Error if UserProfile doesn't exist.
+        if not userSchools.exists():
+            return None
+        return userSchools.latest('endYear', 'startYear').school.name
+
+    def get_userCompany(self, post):
+        userCompanies = post.user.linkedin_user.usercompany_set.all()           # Error if UserProfile doesn't exist.
+        if not userCompanies.exists():
+            return None
+        return userCompanies.latest('endDate', 'startDate').company.name
 
 class PostReactionSerializer(serializers.ModelSerializer):
     userId = serializers.IntegerField(source='user.id', read_only=True)

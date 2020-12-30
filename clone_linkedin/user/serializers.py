@@ -51,7 +51,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         )
 
 class UserSchoolSerializer(serializers.ModelSerializer):
-    schoolName = serializers.SerializerMethodField()
+    schoolName = serializers.CharField(source='school.name')
     startYear = serializers.IntegerField()
     endYear = serializers.IntegerField()
     major = serializers.CharField()
@@ -65,9 +65,6 @@ class UserSchoolSerializer(serializers.ModelSerializer):
             'endYear',
             'major'
         )
-
-    def get_schoolName(self, userschool):
-        return userschool.school.name
 
 
 class UserCompanySerializer(serializers.ModelSerializer):

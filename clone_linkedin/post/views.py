@@ -100,7 +100,8 @@ class PostViewSet(viewsets.GenericViewSet):
             reaction.delete()
             return Response()
 
-    @action(methods=['post'], detail=True)
+    # POST /posts/:id/comment/
+    @action(methods=['POST'], detail=True)
     def comment(self, request, pk=None):
         post = self.get_object()
         data = request.data.copy()
@@ -112,4 +113,21 @@ class PostViewSet(viewsets.GenericViewSet):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+class CommentViewSet(viewsets.GenericViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+
+    # PUT /comment/:id/
+    def update(self, request, pk=None):
+        comment = self.get_object()
+        data = request.data.copy()
+        serializer = self.get_serializer(comment, data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.update(comment, serializer.validated_data)
+        return Response(serializer.data)
+
+    # DELETE /comment/:id/
+    def destroy(self, request, pk=None):
+        self.get_object().delete()
+        return Response()
 

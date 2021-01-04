@@ -31,6 +31,9 @@ class PostViewSet(viewsets.GenericViewSet):
     # GET /posts/
     def list(self, request):
         queryset = self.get_queryset()
+        param = request.query_params
+        if param.get('order', '') == 'latest':
+            queryset = queryset.order_by('-updatedAt')
         filter_backends = self.filter_queryset(queryset)
         page = self.paginate_queryset(filter_backends)
         serializer = self.get_serializer(page, many=True)
@@ -40,6 +43,7 @@ class PostViewSet(viewsets.GenericViewSet):
     def create(self, request):
         data = request.data.copy()
         data['user_id'] = 1                      # Set user with id 1 as the one who wrote posts. Should be updated after login implemented.
+        data['modified'] = False
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -54,6 +58,7 @@ class PostViewSet(viewsets.GenericViewSet):
     def update(self, request, pk=None):
         post = self.get_object()
         data = request.data.copy()
+        data['modified'] = True
         serializer = self.get_serializer(post, data=data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.update(post, serializer.validated_data)

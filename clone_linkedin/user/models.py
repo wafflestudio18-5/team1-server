@@ -6,21 +6,21 @@ from django.db import models
 class UserProfile(models.Model):
     # One-to-one relationship between UserProfile and User implemented through OneToOneField
     user = models.OneToOneField(User, related_name='linkedin_user', on_delete=models.CASCADE)
-    region = models.CharField(max_length=50)
-    contact = models.CharField(max_length=11)
+    region = models.CharField(max_length=50, blank=True)
+    contact = models.CharField(max_length=11, blank=True)
     # photo 
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
 
 class School(models.Model):
     name = models.CharField(max_length=50) 
-    location = models.CharField(max_length=50)
+    location = models.CharField(max_length=50, blank=True)
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
 
 class Company(models.Model):
     name = models.CharField(max_length=50) 
-    location = models.CharField(max_length=50)
+    location = models.CharField(max_length=50, blank=True)
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True) 
 

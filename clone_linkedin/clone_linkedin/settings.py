@@ -31,6 +31,8 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     'http://localhost:3000',
+    'clone-linkedin.com',
+    'www.clone-linkedin.com',
 ]
 
 CORS_ORIGIN_ALLOW_ALL = False

@@ -17,6 +17,7 @@ class PostSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'content',
+            'image', 
             'createdAt',
             'updatedAt',
             'modified',
@@ -50,6 +51,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
     userLastName = serializers.CharField(source='user.last_name')
     postReactions = serializers.SerializerMethodField() 
     comments = serializers.SerializerMethodField()
+    image = serializers.ImageField(use_url=True) 
     userSchool = serializers.SerializerMethodField()
     userCompany = serializers.SerializerMethodField()
 
@@ -58,6 +60,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'content',
+            'image',
             'createdAt',
             'updatedAt',
             'modified',

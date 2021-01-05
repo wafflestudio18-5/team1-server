@@ -21,7 +21,7 @@ class UserViewSet(viewsets.GenericViewSet):
     permission_classes = (IsAuthenticated, )
 
     def get_permissions(self):
-        if self.action in ('logout', 'get', 'update'):
+        if self.action in ('logout', 'get', 'update', 'profile', 'school', 'company'):
             return super(UserViewSet, self).get_permissions()
         return (AllowAny(), )
     
@@ -96,38 +96,49 @@ class UserViewSet(viewsets.GenericViewSet):
     # GET /user/me/profile/
     def _get_profile(self, request, pk=None):
         if pk == 'me':
-            user = User.objects.get(id=1) # user = request.user
+            user = request.user
         else:
             user = User.objects.get(id=pk) # user = self.get_object()
-        userprofile = UserProfile.objects.get(user=user.id)
-        data = GetProfileSerializer(userprofile).data
-        return Response(data, status=status.HTTP_200_OK)
+
+        if UserProfile.objects.filter(user=user.id).count() == 0:
+            print(UserProfile.objects.filter(user=user))
+            return Response()
+        else:
+            userprofile = UserProfile.objects.get(user=user.id)
+            data = GetProfileSerializer(userprofile).data
+            return Response(data, status=status.HTTP_200_OK)
 
 
     # POST /user/me/profile/
     def _create_profile(self, request, pk=None):
+        print("user는 ", request.user)
         if pk =='me':
-            user = User.objects.get(id=1) # user = request.user
+            user = request.user
         else:
             return Response({"error": "Can't post other User's profile"}, status=status.HTTP_403_FORBIDDEN)
         data = request.data.copy()
-        userProfile = UserProfile.objects.get(user_id=user)
+        region = data['region']
+        contact = data['contact']
+        if UserProfile.objects.filter(user_id=user.id).exists():
+            userProfile = UserProfile.objects.get(user_id=user.id)
+        else:
+            userProfile = UserProfile.objects.create(user_id=user.id, region=region, contact=contact)
 
         # school
         schoolName = data['schoolName']
-        startyear = data['schoolStartYear']
-        endyear = data['schoolEndYear']
-        major = data['major']
         if schoolName is not None:
+            startyear = data['schoolStartYear']
+            endyear = data['schoolEndYear']
+            major = data['major']
             school, is_school = School.objects.get_or_create(name=schoolName)
             userschool = UserSchool.objects.create(userProfile=userProfile, school=school,
                                                    startYear=startyear, endYear=endyear, major=major)
 
         #company
         companyName = data['companyName']
-        startdate = data['companyStartDate']
-        enddate = data['companyEndDate']
         if companyName is not None:
+            startdate = data['companyStartDate']
+            enddate = data['companyEndDate']
             company, is_company = Company.objects.get_or_create(name=companyName)
             usercompany = UserCompany.objects.create(userProfile=userProfile, company=company,
                                                      startDate=startdate, endDate=enddate)
@@ -140,7 +151,7 @@ class UserViewSet(viewsets.GenericViewSet):
         if pk != 'me':
             return Response({"error": "Can't update other User's profile"}, status=status.HTTP_403_FORBIDDEN)
 
-        user = User.objects.get(id=1)  # user = request.user
+        user = request.user
         userprofile = UserProfile.objects.get(user=user.id)
         if UserSchool.objects.get(id=school_pk).userProfile != userprofile:
             return Response({"error": "This profile is not your one"}, status=status.HTTP_400_BAD_REQUEST)
@@ -182,7 +193,7 @@ class UserViewSet(viewsets.GenericViewSet):
         if pk != 'me':
             return Response({"error": "Can't update other User's profile"}, status=status.HTTP_403_FORBIDDEN)
 
-        user = User.objects.get(id=1)  # user = request.user
+        user = request.user
         if UserSchool.obejcts.get(id=company_pk).user != user:
             return Response({"error": "This profile is not your one"}, status=status.HTTP_400_BAD_REQUEST)
 

@@ -96,7 +96,7 @@ class UserViewSet(viewsets.GenericViewSet):
     # GET /user/me/profile/
     def _get_profile(self, request, pk=None):
         if pk == 'me':
-            user = User.objects.get(id=1) # user = request.user
+            user = request.user
         else:
             user = User.objects.get(id=pk) # user = self.get_object()
         userprofile = UserProfile.objects.get(user=user.id)

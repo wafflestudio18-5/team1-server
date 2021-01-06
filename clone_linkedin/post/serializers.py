@@ -149,3 +149,7 @@ class CommentSerializer(serializers.ModelSerializer):
         validated_data['post'] = Post.objects.get(id=validated_data.pop('post_id'))
         return super(CommentSerializer, self).create(validated_data)
 
+    def update(self, instance, validated_data):
+        validated_data.pop('user_id', None)
+        validated_data.pop('post_id', None)
+        return super(CommentSerializer, self).update(instance, validated_data)

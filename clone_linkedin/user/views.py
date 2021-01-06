@@ -101,8 +101,8 @@ class UserViewSet(viewsets.GenericViewSet):
             user = User.objects.get(id=pk) # user = self.get_object()
 
         if UserProfile.objects.filter(user=user.id).count() == 0:
-            print(UserProfile.objects.filter(user=user))
-            return Response()
+            return Response({"firstName": user.first_name,
+                             "lastName": user.last_name}, status=status.HTTP_200_OK)
         else:
             userprofile = UserProfile.objects.get(user=user.id)
             data = GetProfileSerializer(userprofile).data
@@ -111,7 +111,6 @@ class UserViewSet(viewsets.GenericViewSet):
 
     # POST /user/me/profile/
     def _create_profile(self, request, pk=None):
-        print("user는 ", request.user)
         if pk =='me':
             user = request.user
         else:
@@ -120,6 +119,7 @@ class UserViewSet(viewsets.GenericViewSet):
         region = data['region']
         contact = data['contact']
         if UserProfile.objects.filter(user_id=user.id).exists():
+            UserProfile.objects.filter(user_id=user.id).update(region=region, contact=contact)
             userProfile = UserProfile.objects.get(user_id=user.id)
         else:
             userProfile = UserProfile.objects.create(user_id=user.id, region=region, contact=contact)
@@ -143,6 +143,8 @@ class UserViewSet(viewsets.GenericViewSet):
             usercompany = UserCompany.objects.create(userProfile=userProfile, company=company,
                                                      startDate=startdate, endDate=enddate)
 
+        data['firstName'] = user.first_name
+        data['lastName'] = user.last_name
         return Response(data, status=status.HTTP_201_CREATED)
 
     # /user/me/profile/school/

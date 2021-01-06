@@ -26,6 +26,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    firstName = serializers.SerializerMethodField()
+    lastName = serializers.SerializerMethodField()
     region = serializers.CharField()
     contact = serializers.CharField()
     schoolName = serializers.CharField()
@@ -40,6 +42,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = (
             'id',
+            'firstName',
+            'lastName',
             'region',
             'contact',
             'schoolName',
@@ -50,6 +54,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'companyStartDate',
             'companyEndDate'
         )
+
+    def get_firstName(self, userprofile):
+        user = userprofile.user
+        return user.first_name
+
+    def get_lastName(self, userprofile):
+        user = userprofile.user
+        return user.last_name
+
 
 class UserSchoolSerializer(serializers.ModelSerializer):
     schoolName = serializers.CharField(source='school.name')
@@ -83,6 +96,8 @@ class UserCompanySerializer(serializers.ModelSerializer):
         )
 
 class GetProfileSerializer(serializers.ModelSerializer):
+    firstName = serializers.SerializerMethodField()
+    lastName = serializers.SerializerMethodField()
     region = serializers.CharField()
     contact = serializers.CharField()
     school = serializers.SerializerMethodField()
@@ -92,6 +107,8 @@ class GetProfileSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = (
             'id',
+            'firstName',
+            'lastName',
             'region',
             'contact',
             'school',
@@ -107,6 +124,14 @@ class GetProfileSerializer(serializers.ModelSerializer):
         userprofile = UserProfile.objects.get(id=user.id)
         companies = UserCompany.objects.filter(userProfile=userprofile)
         return UserCompanySerializer(companies, many=True, context=self.context).data
+
+    def get_firstName(self, userprofile):
+        user = userprofile.user
+        return user.first_name
+
+    def get_lastName(self, userprofile):
+        user = userprofile.user
+        return user.last_name
 
 class ShortUserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(allow_blank=False)

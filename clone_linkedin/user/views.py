@@ -10,7 +10,7 @@ from user.models import School, UserSchool, UserProfile, UserCompany, Company
 
 from user.serializers import UserSerializer, UserProfileSerializer, GetProfileSerializer, \
                              UserSchoolSerializer, UserCompanySerializer, \
-                             ShortUserSerializer, UserNameSerializer, SocialSerializer
+                             ShortUserSerializer, UserNameSerializer, SocialSerializer, UserDetailSerializer
 
 from django.conf import settings
 from google.auth.transport import requests
@@ -21,7 +21,8 @@ class UserViewSet(viewsets.GenericViewSet):
     permission_classes = (IsAuthenticated, )
 
     def get_permissions(self):
-        if self.action in ('logout', 'get', 'update', 'profile', 'school', 'company'):
+        if self.action in ('logout', 'get', 'update', 'profile',
+                           'school', 'company', 'specific', 'newschool', 'newcompany'):
             return super(UserViewSet, self).get_permissions()
         return (AllowAny(), )
     
@@ -77,77 +78,74 @@ class UserViewSet(viewsets.GenericViewSet):
             return GetProfileSerializer
         elif self.action == 'profile' and self.request.method == 'PUT':
             return UserProfileSerializer
-        elif self.action == 'school':
+        elif self.action == 'school' or self.action == 'newschool':
             return UserSchoolSerializer
-        elif self.action == 'company':
+        elif self.action == 'company' or self.action == 'newcompany':
             return UserCompanySerializer
+        elif self.action == 'specific':
+            return UserDetailSerializer
         else:
             return UserSerializer
 
-    @action(detail=True, methods=['POST', 'GET'])
+    @action(detail=True, methods=['GET'])
     def profile(self, request, pk=None):
-        if self.request.method == 'POST':
-            return self._create_profile(request, pk)
-        elif self.request.method == 'GET':
-            return self._get_profile(request, pk)
-        else:
-            return self._update_profile(request)
-
-    # GET /user/me/profile/
-    def _get_profile(self, request, pk=None):
         if pk == 'me':
             user = request.user
         else:
-            user = User.objects.get(id=pk) # user = self.get_object()
+            user = User.objects.get(id=pk)
 
-        if UserProfile.objects.filter(user=user.id).count() == 0:
-            return Response({"firstName": user.first_name,
-                             "lastName": user.last_name}, status=status.HTTP_200_OK)
+
+        userprofile, is_userprofile = UserProfile.objects.get_or_create(user=user)
+        data = GetProfileSerializer(userprofile).data
+        return Response(data, status=status.HTTP_200_OK)
+
+
+    # /user/me/profile/specific/
+    @action(detail=True, methods=['GET', 'PUT'], url_path='profile/specific')
+    def specific(self, request, pk=None):
+        if pk != 'me':
+            return Response({"error": "Can't update other User's profile"}, status=status.HTTP_403_FORBIDDEN)
+
+        user = request.user
+        userprofile = UserProfile.objects.get(user=user.id)
+
+        if self.request.method == 'PUT':
+            return self._update_specific(request, user, userprofile)
+
         else:
-            userprofile = UserProfile.objects.get(user=user.id)
-            data = GetProfileSerializer(userprofile).data
-            return Response(data, status=status.HTTP_200_OK)
+            return self._get_specific(request, userprofile)
 
+    def _get_specific(self, request, userprofile):
+        serializer = self.get_serializer(userprofile)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-    # POST /user/me/profile/
-    def _create_profile(self, request, pk=None):
-        if pk =='me':
-            user = request.user
-        else:
-            return Response({"error": "Can't post other User's profile"}, status=status.HTTP_403_FORBIDDEN)
+    def _update_specific(self, request, user, userprofile):
         data = request.data.copy()
-        region = data['region']
-        contact = data['contact']
-        if UserProfile.objects.filter(user_id=user.id).exists():
-            UserProfile.objects.filter(user_id=user.id).update(region=region, contact=contact)
-            userProfile = UserProfile.objects.get(user_id=user.id)
-        else:
-            userProfile = UserProfile.objects.create(user_id=user.id, region=region, contact=contact)
+        serializer = self.get_serializer(data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        updated_data = serializer.update(userprofile, serializer.validated_data)
+        updated_serializer = self.get_serializer(data=data)
+        updated_serializer.is_valid(raise_exception=True)
+        return Response(updated_serializer.data, status=status.HTTP_200_OK)
 
-        # school
+    # /user/me/profile/newschool/
+    @action(detail=True, methods=['POST'], url_path='profile/newschool')
+    def newschool(self, request, pk=None):
+        if pk != 'me':
+            return Response({"error": "Can't update other User's profile"}, status=status.HTTP_403_FORBIDDEN)
+        user = request.user
+        data = request.data.copy()
         schoolName = data['schoolName']
-        if schoolName is not None:
-            startyear = data['schoolStartYear']
-            endyear = data['schoolEndYear']
-            major = data['major']
-            school, is_school = School.objects.get_or_create(name=schoolName)
-            userschool = UserSchool.objects.create(userProfile=userProfile, school=school,
-                                                   startYear=startyear, endYear=endyear, major=major)
 
-        #company
-        companyName = data['companyName']
-        if companyName is not None:
-            startdate = data['companyStartDate']
-            enddate = data['companyEndDate']
-            company, is_company = Company.objects.get_or_create(name=companyName)
-            usercompany = UserCompany.objects.create(userProfile=userProfile, company=company,
-                                                     startDate=startdate, endDate=enddate)
+        userprofile = UserProfile.objects.get(user=user.id)
+        school, is_school = School.objects.get_or_create(name=schoolName)
+        userschool = UserSchool.objects.create(userProfile=userprofile, school=school)
+        serializer = self.get_serializer(data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.update(userschool, school, serializer.validated_data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-        data['firstName'] = user.first_name
-        data['lastName'] = user.last_name
-        return Response(data, status=status.HTTP_201_CREATED)
 
-    # /user/me/profile/school/
     @action(detail=True, methods=['GET', 'PUT', 'DELETE'], url_path='profile/school/(?P<school_pk>[^/.]+)')
     def school(self, request, pk=None, school_pk=None):
         if pk != 'me':
@@ -189,6 +187,22 @@ class UserViewSet(viewsets.GenericViewSet):
         userschool.delete()
         return Response()
 
+    # POST /user/me/profile/newcompany/
+    @action(detail=True, methods=['POST'], url_path='profile/newcompany')
+    def newcompany(self, request, pk=None):
+        if pk != 'me':
+            return Response({"error": "Can't update other User's profile"}, status=status.HTTP_403_FORBIDDEN)
+
+        user = request.user
+        data = request.data.copy()
+        companyName = data['companyName']
+        userprofile = UserProfile.objects.get(user=user.id)
+        company, is_company = Company.objects.get_or_create(name=companyName)
+        usercompany = UserCompany.objects.create(userProfile=userprofile, company=company)
+        serializer = self.get_serializer(data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.update(usercompany, company, serializer.validated_data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['GET', 'PUT', 'DELETE'], url_path='profile/company/(?P<company_pk>[^/.]+)')
     def company(self, request, pk=None, company_pk=None):
@@ -196,8 +210,6 @@ class UserViewSet(viewsets.GenericViewSet):
             return Response({"error": "Can't update other User's profile"}, status=status.HTTP_403_FORBIDDEN)
 
         user = request.user
-        if UserSchool.obejcts.get(id=company_pk).user != user:
-            return Response({"error": "This profile is not your one"}, status=status.HTTP_400_BAD_REQUEST)
 
         userprofile = UserProfile.objects.get(user=user.id)
         if UserCompany.objects.get(id=company_pk).userProfile != userprofile:

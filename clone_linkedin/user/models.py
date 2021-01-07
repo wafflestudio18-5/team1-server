@@ -8,6 +8,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, related_name='linkedin_user', on_delete=models.CASCADE)
     region = models.CharField(max_length=50, blank=True)
     contact = models.CharField(max_length=11, blank=True)
+    detail = models.CharField(max_length=100, blank=True)
     # photo 
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)

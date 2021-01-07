@@ -94,6 +94,7 @@ class UserViewSet(viewsets.GenericViewSet):
         else:
             user = User.objects.get(id=pk)
 
+
         userprofile, is_userprofile = UserProfile.objects.get_or_create(user=user)
         data = GetProfileSerializer(userprofile).data
         return Response(data, status=status.HTTP_200_OK)
@@ -110,6 +111,7 @@ class UserViewSet(viewsets.GenericViewSet):
 
         if self.request.method == 'PUT':
             return self._update_specific(request, user, userprofile)
+
         else:
             return self._get_specific(request, userprofile)
 
@@ -131,10 +133,10 @@ class UserViewSet(viewsets.GenericViewSet):
     def newschool(self, request, pk=None):
         if pk != 'me':
             return Response({"error": "Can't update other User's profile"}, status=status.HTTP_403_FORBIDDEN)
-
         user = request.user
         data = request.data.copy()
         schoolName = data['schoolName']
+
         userprofile = UserProfile.objects.get(user=user.id)
         school, is_school = School.objects.get_or_create(name=schoolName)
         userschool = UserSchool.objects.create(userProfile=userprofile, school=school)
@@ -142,6 +144,7 @@ class UserViewSet(viewsets.GenericViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.update(userschool, school, serializer.validated_data)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
     @action(detail=True, methods=['GET', 'PUT', 'DELETE'], url_path='profile/school/(?P<school_pk>[^/.]+)')
     def school(self, request, pk=None, school_pk=None):

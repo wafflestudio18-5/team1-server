@@ -107,6 +107,7 @@ class UserCompanySerializer(serializers.ModelSerializer):
         return super(UserCompanySerializer, self).update(usercompany, validated_data)
 
 class GetProfileSerializer(serializers.ModelSerializer):
+
     firstName = serializers.CharField(source='user.first_name')
     lastName = serializers.CharField(source='user.last_name')
     region = serializers.CharField()
@@ -174,6 +175,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
         userprofile.contact = validated_data.get('contact', userprofile.contact)
         userprofile.save()
         return validated_data
+
 
 
 class ShortUserSerializer(serializers.ModelSerializer):

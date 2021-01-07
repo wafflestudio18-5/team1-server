@@ -1,7 +1,7 @@
 # from django.shortcuts import render
 
 from rest_framework import status, viewsets, filters 
-# from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django.contrib.auth.models import User
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -9,14 +9,15 @@ from django.shortcuts import get_object_or_404
 
 from post.serializers import PostSerializer, PostDetailSerializer, PostReactionSerializer, CommentSerializer 
 from post.models import Post, Comment
+from post.permissions import IsOwnerOrReadOrCreate
 
 # Create your views here.
 
 class PostViewSet(viewsets.GenericViewSet):
     queryset = Post.objects.all()
-    serializer_class = PostSerializer
     search_fields = ['content']
     filter_backends = (filters.SearchFilter, )
+    permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOrCreate)
 
     def get_serializer_class(self):
         if self.action == 'reaction':

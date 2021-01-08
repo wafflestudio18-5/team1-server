@@ -8,7 +8,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from user.models import School, UserSchool, UserProfile, UserCompany, Company
 
-from user.serializers import UserSerializer, UserProfileSerializer, GetProfileSerializer, \
+from user.serializers import UserSerializer, GetProfileSerializer, \
                              UserSchoolSerializer, UserCompanySerializer, \
                              ShortUserSerializer, UserNameSerializer, SocialSerializer, UserDetailSerializer
 
@@ -72,9 +72,7 @@ class UserViewSet(viewsets.GenericViewSet):
         return Response(serializer.data, status = status.HTTP_200_OK)
 
     def get_serializer_class(self):
-        if self.action == 'profile' and self.request.method == 'POST':
-            return UserProfileSerializer
-        elif self.action == 'profile' and self.request.method == 'GET':
+        if self.action == 'profile' and self.request.method == 'GET':
             return GetProfileSerializer
         elif self.action == 'profile' and self.request.method == 'PUT':
             return UserProfileSerializer
@@ -93,7 +91,6 @@ class UserViewSet(viewsets.GenericViewSet):
             user = request.user
         else:
             user = User.objects.get(id=pk)
-
 
         userprofile, is_userprofile = UserProfile.objects.get_or_create(user=user)
         data = GetProfileSerializer(userprofile).data

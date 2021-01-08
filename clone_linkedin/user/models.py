@@ -12,6 +12,7 @@ class UserProfile(models.Model):
     image = models.ImageField(upload_to="%Y/%m/%d", blank=True)
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
+    profile_created = models.BooleanField(default=False)
 
 class School(models.Model):
     name = models.CharField(max_length=50) 

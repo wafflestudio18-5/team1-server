@@ -108,10 +108,10 @@ class UserDetailSerializer(serializers.ModelSerializer):
     firstName = serializers.CharField(source='user.first_name', required=False)
     lastName = serializers.CharField(source='user.last_name', required=False)
     detail = serializers.CharField(allow_blank=True, required=False)
-    image = serializers.CharField(allow_blank=True, allow_null=True)
+    image = serializers.CharField(allow_blank=True, allow_null=True, required=False)
     region = serializers.CharField(allow_blank=True, required=False)
     contact = serializers.CharField(allow_blank=True, required=False)
-    profile_created = serializers.BooleanField(allow_null=True)
+    profile_created = serializers.BooleanField(allow_null=True, required=False)
 
     class Meta:
         model = UserProfile

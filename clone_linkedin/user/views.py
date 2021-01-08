@@ -289,7 +289,6 @@ class SocialLoginViewSet(viewsets.GenericViewSet):
 
             userprofile, is_userprofile = UserProfile.objects.get_or_create(user=user)
 
-            print(idinfo['picture'])
             userprofile.image = idinfo['picture']
             userprofile.save()
 
@@ -298,7 +297,7 @@ class SocialLoginViewSet(viewsets.GenericViewSet):
             return Response(data, status=status.HTTP_201_CREATED)
         
         login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-        
+
         data = self.get_serializer(user).data
         token, _ = Token.objects.get_or_create(user=user)
         data['token'] = user.auth_token.key

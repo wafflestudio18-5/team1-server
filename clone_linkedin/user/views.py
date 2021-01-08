@@ -74,8 +74,6 @@ class UserViewSet(viewsets.GenericViewSet):
     def get_serializer_class(self):
         if self.action == 'profile' and self.request.method == 'GET':
             return GetProfileSerializer
-        elif self.action == 'profile' and self.request.method == 'PUT':
-            return UserProfileSerializer
         elif self.action == 'school' or self.action == 'newschool':
             return UserSchoolSerializer
         elif self.action == 'company' or self.action == 'newcompany':

@@ -73,7 +73,7 @@ class GetProfileSerializer(serializers.ModelSerializer):
     region = serializers.CharField()
     contact = serializers.CharField()
     detail = serializers.CharField()
-    image = serializers.CharField()
+    image = serializers.CharField(allow_blank=True)
     profile_created = serializers.BooleanField()
 
     school = serializers.SerializerMethodField()
@@ -108,7 +108,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
     firstName = serializers.CharField(source='user.first_name', required=False)
     lastName = serializers.CharField(source='user.last_name', required=False)
     detail = serializers.CharField(allow_blank=True, required=False)
-    image = serializers.CharField()
+    image = serializers.CharField(allow_blank=True)
     region = serializers.CharField(allow_blank=True, required=False)
     contact = serializers.CharField(allow_blank=True, required=False)
     profile_created = serializers.BooleanField(allow_null=True)
@@ -140,11 +140,10 @@ class UserDetailSerializer(serializers.ModelSerializer):
         user.save()
         userprofile.detail = validated_data.get('detail', userprofile.detail)
         userprofile.region = validated_data.get('region', userprofile.region)
-        # userprofile.image = validated_data.get('image', userprofile.image)
+        userprofile.image = validated_data.get('image', userprofile.image)
         userprofile.profile_created = validated_data.get('profile_created', False)
         userprofile.contact = validated_data.get('contact', userprofile.contact)
         userprofile.save()
-        print(userprofile.profile_created)
         return validated_data
 
 

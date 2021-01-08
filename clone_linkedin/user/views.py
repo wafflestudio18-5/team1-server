@@ -10,7 +10,7 @@ from user.models import School, UserSchool, UserProfile, UserCompany, Company
 
 from user.serializers import UserSerializer, UserProfileSerializer, GetProfileSerializer, \
                              UserSchoolSerializer, UserCompanySerializer, \
-                             ShortUserSerializer, UserNameSerializer, SocialSerializer, UserDetailSerializer
+                             ShortUserSerializer, UserNameSerializer, SocialSerializer, UserDetailSerializer, SocialImageSerializer
 
 from django.conf import settings
 from google.auth.transport import requests
@@ -93,7 +93,6 @@ class UserViewSet(viewsets.GenericViewSet):
             user = request.user
         else:
             user = User.objects.get(id=pk)
-
 
         userprofile, is_userprofile = UserProfile.objects.get_or_create(user=user)
         data = GetProfileSerializer(userprofile).data
@@ -283,15 +282,25 @@ class SocialLoginViewSet(viewsets.GenericViewSet):
             serializer = self.get_serializer(data=data)
             serializer.is_valid(raise_exception=True)
             user = serializer.save()
-            
             login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+
+            img_data = {}
+            img_data['image'] = idinfo['picture']
+
+            userprofile, is_userprofile = UserProfile.objects.get_or_create(user=user)
+
+            userprofile.image = idinfo['picture']
+            userprofile.save()
 
             token, _ = Token.objects.get_or_create(user=user)
             data['token'] = user.auth_token.key
             return Response(data, status=status.HTTP_201_CREATED)
         
+        login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+
         data = self.get_serializer(user).data
         token, _ = Token.objects.get_or_create(user=user)
         data['token'] = user.auth_token.key
+        
         return Response(data, status=status.HTTP_200_OK)
 

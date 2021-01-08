@@ -146,10 +146,10 @@ class GetProfileSerializer(serializers.ModelSerializer):
 class UserDetailSerializer(serializers.ModelSerializer):
     firstName = serializers.CharField(source='user.first_name', required=False)
     lastName = serializers.CharField(source='user.last_name', required=False)
-    detail = serializers.CharField(allow_blank=True)
+    detail = serializers.CharField(allow_blank=True, required=False)
     image = serializers.ImageField(use_url=True)
-    region = serializers.CharField(allow_blank=True)
-    contact = serializers.CharField(allow_blank=True)
+    region = serializers.CharField(allow_blank=True, required=False)
+    contact = serializers.CharField(allow_blank=True, required=False)
 
     class Meta:
         model = UserProfile
@@ -240,4 +240,15 @@ class SocialSerializer(serializers.ModelSerializer):
             'id',
             'email',
             'username'
+        )
+
+class SocialImageSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(use_url=True)
+
+    class Meta:
+        model = UserProfile
+        fields = (
+
+            'image',
+ 
         )

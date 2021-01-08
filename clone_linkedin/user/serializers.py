@@ -140,7 +140,8 @@ class UserDetailSerializer(serializers.ModelSerializer):
         user.save()
         userprofile.detail = validated_data.get('detail', userprofile.detail)
         userprofile.region = validated_data.get('region', userprofile.region)
-        userprofile.image = validated_data.get('image', userprofile.image)
+        if validated_data.get('image')!= '':
+            userprofile.image = validated_data.get('image', userprofile.image)
         userprofile.profile_created = validated_data.get('profile_created', False)
         userprofile.contact = validated_data.get('contact', userprofile.contact)
         userprofile.save()

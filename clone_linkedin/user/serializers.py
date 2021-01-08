@@ -25,48 +25,6 @@ class UserSerializer(serializers.ModelSerializer):
             'password',
         )
 
-
-class UserProfileSerializer(serializers.ModelSerializer):
-    firstName = serializers.SerializerMethodField()
-    lastName = serializers.SerializerMethodField()
-    region = serializers.CharField()
-    image = serializers.CharField()
-    contact = serializers.CharField()
-    schoolName = serializers.CharField()
-    schoolStartYear = serializers.IntegerField()
-    schoolEndYear = serializers.IntegerField()
-    major = serializers.CharField()
-    companyName = serializers.CharField()
-    companyStartDate = serializers.DateField()
-    companyEndDate = serializers.DateField()
-
-    class Meta:
-        model = UserProfile
-        fields = (
-            'id',
-            'firstName',
-            'lastName',
-            'region',
-            'image',
-            'contact',
-            'schoolName',
-            'schoolStartYear',
-            'schoolEndYear',
-            'major',
-            'companyName',
-            'companyStartDate',
-            'companyEndDate'
-        )
-
-    def get_firstName(self, userprofile):
-        user = userprofile.user
-        return user.first_name
-
-    def get_lastName(self, userprofile):
-        user = userprofile.user
-        return user.last_name
-
-
 class UserSchoolSerializer(serializers.ModelSerializer):
     schoolName = serializers.CharField(source='school.name')
     startYear = serializers.IntegerField(required=False)
@@ -116,6 +74,8 @@ class GetProfileSerializer(serializers.ModelSerializer):
     contact = serializers.CharField()
     detail = serializers.CharField()
     image = serializers.CharField()
+    profile_created = serializers.BooleanField()
+
     school = serializers.SerializerMethodField()
     company = serializers.SerializerMethodField()
 
@@ -129,6 +89,7 @@ class GetProfileSerializer(serializers.ModelSerializer):
             'contact',
             'detail',
             'image',
+            'profile_created',
             'school',
             'company'
         )
@@ -150,6 +111,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
     image = serializers.CharField()
     region = serializers.CharField(allow_blank=True, required=False)
     contact = serializers.CharField(allow_blank=True, required=False)
+    profile_created = serializers.BooleanField(allow_null=True)
 
     class Meta:
         model = UserProfile
@@ -160,27 +122,29 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'detail',
             'image',
             'region',
-            'contact'
+            'contact',
+            'profile_created'
         )
 
     @transaction.atomic
     def update(self, userprofile, validated_data):
-        user_data = validated_data.pop('user')
         user = userprofile.user
 
-        if user is not None:
-            if bool('first_name' in user_data) and bool('last_name' in user_data):
+        if bool('user' in validated_data):
+            user_data = validated_data.pop('user')
+            if bool('first_name' in user_data):
                 user.first_name = user_data['first_name']
+            if bool('last_name' in user_data):
                 user.last_name = user_data['last_name']
-                user.save()
-            else:
-                return Response({"error": "Can't update other User's profile"}, status=status.HTTP_400_BAD_REQUEST)
 
+        user.save()
         userprofile.detail = validated_data.get('detail', userprofile.detail)
         userprofile.region = validated_data.get('region', userprofile.region)
         # userprofile.image = validated_data.get('image', userprofile.image)
+        userprofile.profile_created = validated_data.get('profile_created', False)
         userprofile.contact = validated_data.get('contact', userprofile.contact)
         userprofile.save()
+        print(userprofile.profile_created)
         return validated_data
 
 

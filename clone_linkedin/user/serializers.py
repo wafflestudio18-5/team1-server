@@ -30,6 +30,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     firstName = serializers.SerializerMethodField()
     lastName = serializers.SerializerMethodField()
     region = serializers.CharField()
+    image = serializers.ImageField(use_url=True)
     contact = serializers.CharField()
     schoolName = serializers.CharField()
     schoolStartYear = serializers.IntegerField()
@@ -46,6 +47,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'firstName',
             'lastName',
             'region',
+            'image',
             'contact',
             'schoolName',
             'schoolStartYear',
@@ -113,6 +115,7 @@ class GetProfileSerializer(serializers.ModelSerializer):
     region = serializers.CharField()
     contact = serializers.CharField()
     detail = serializers.CharField()
+    image = serializers.ImageField(use_url=True)
     school = serializers.SerializerMethodField()
     company = serializers.SerializerMethodField()
 
@@ -125,6 +128,7 @@ class GetProfileSerializer(serializers.ModelSerializer):
             'region',
             'contact',
             'detail',
+            'image',
             'school',
             'company'
         )
@@ -143,6 +147,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
     firstName = serializers.CharField(source='user.first_name', required=False)
     lastName = serializers.CharField(source='user.last_name', required=False)
     detail = serializers.CharField(allow_blank=True)
+    image = serializers.ImageField(use_url=True)
     region = serializers.CharField(allow_blank=True)
     contact = serializers.CharField(allow_blank=True)
 
@@ -153,6 +158,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'firstName',
             'lastName',
             'detail',
+            'image',
             'region',
             'contact'
         )
@@ -172,6 +178,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
         userprofile.detail = validated_data.get('detail', userprofile.detail)
         userprofile.region = validated_data.get('region', userprofile.region)
+        # userprofile.image = validated_data.get('image', userprofile.image)
         userprofile.contact = validated_data.get('contact', userprofile.contact)
         userprofile.save()
         return validated_data

@@ -242,7 +242,6 @@ class UserViewSet(viewsets.GenericViewSet):
         return Response()
 
 
-
 class UserNameViewSet(viewsets.GenericViewSet):
     queryset = User.objects.all()
     serializer_class = UserNameSerializer

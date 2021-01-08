@@ -33,6 +33,7 @@ class UserViewSet(viewsets.GenericViewSet):
 
         login(request, user, backend="django.contrib.auth.backends.ModelBackend")
 
+        userprofile, is_userprofile = UserProfile.objects.get_or_create(user=user)
         data = serializer.data
         data['token'] = user.auth_token.key
         return Response(data, status=status.HTTP_201_CREATED)

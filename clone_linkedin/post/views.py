@@ -1,7 +1,7 @@
 # from django.shortcuts import render
 
 from rest_framework import status, viewsets, filters 
-# from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django.contrib.auth.models import User
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -9,14 +9,15 @@ from django.shortcuts import get_object_or_404
 
 from post.serializers import PostSerializer, PostDetailSerializer, PostReactionSerializer, CommentSerializer 
 from post.models import Post, Comment
+from post.permissions import IsOwnerOrReadOrCreate
 
 # Create your views here.
 
 class PostViewSet(viewsets.GenericViewSet):
     queryset = Post.objects.all()
-    serializer_class = PostSerializer
     search_fields = ['content']
     filter_backends = (filters.SearchFilter, )
+    permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOrCreate)
 
     def get_serializer_class(self):
         if self.action == 'reaction':
@@ -42,7 +43,7 @@ class PostViewSet(viewsets.GenericViewSet):
     # POST /posts/
     def create(self, request):
         data = request.data.copy()
-        data['user_id'] = 1                      # Set user with id 1 as the one who wrote posts. Should be updated after login implemented.
+        data['user_id'] = request.user.id
         data['modified'] = False
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
@@ -78,24 +79,24 @@ class PostViewSet(viewsets.GenericViewSet):
             reaction = post.postReactions.all()
             return Response(self.get_serializer(reaction, many=True).data)
         elif self.request.method == 'POST':
-            user = User.objects.get(id=1)          # Needs to be fixed after login implemented.
+            user = request.user
             if self.get_object().postReactions.filter(user=user).exists():
                 return Response({"error": "Reaction already made."}, status=status.HTTP_400_BAD_REQUEST)
-            data['user_id'] = 1
+            data['user_id'] = user.id
             data['post_id'] = post.id 
             serializer = self.get_serializer(data=data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         elif self.request.method == 'PUT':
-            user = User.objects.get(id=1)          # Needs to be fixed after login implemented.
+            user = request.user
             reaction = get_object_or_404(post.postReactions, user=user)
             serializer = self.get_serializer(reaction, data=data, partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.update(reaction, serializer.validated_data)
             return Response(serializer.data)     
         elif self.request.method == 'DELETE':
-            user = User.objects.get(id=1)       # Needs to be fixed after login implemented.
+            user = request.user
             reaction = get_object_or_404(self.get_object().postReactions, user=user)     # Error if multiple reactions by the user exist
             reaction.delete()
             return Response()
@@ -105,7 +106,7 @@ class PostViewSet(viewsets.GenericViewSet):
     def comment(self, request, pk=None):
         post = self.get_object()
         data = request.data.copy()
-        data['user_id'] = 1                      # Set user with id 1 as the one who wrote comment. Should be updated after login implemented.
+        data['user_id'] = request.user.id
         data['post_id'] = post.id
         data['likes'] = 0
         serializer = self.get_serializer(data=data)

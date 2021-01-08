@@ -27,7 +27,6 @@ class UserSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     region = serializers.CharField()
     contact = serializers.CharField()
-    image = serializers.ImageField(use_url=True) 
     schoolName = serializers.CharField()
     schoolStartYear = serializers.IntegerField()
     schoolEndYear = serializers.IntegerField()
@@ -42,7 +41,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'id',
             'region',
             'contact',
-            'image',
             'schoolName',
             'schoolStartYear',
             'schoolEndYear',

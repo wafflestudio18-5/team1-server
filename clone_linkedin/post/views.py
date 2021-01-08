@@ -15,7 +15,7 @@ from post.permissions import IsOwnerOrReadOrCreate
 
 class PostViewSet(viewsets.GenericViewSet):
     queryset = Post.objects.all()
-    search_fields = ['content']
+    search_fields = ['content', 'user__first_name', 'user__last_name']
     filter_backends = (filters.SearchFilter, )
     permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOrCreate)
 

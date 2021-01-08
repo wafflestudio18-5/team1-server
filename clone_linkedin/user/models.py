@@ -9,7 +9,7 @@ class UserProfile(models.Model):
     region = models.CharField(max_length=50, blank=True)
     contact = models.CharField(max_length=11, blank=True)
     detail = models.CharField(max_length=100, blank=True)
-    # photo 
+    image = models.ImageField(upload_to="%Y/%m/%d")
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
 

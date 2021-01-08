@@ -25,7 +25,6 @@ class UserSerializer(serializers.ModelSerializer):
             'password',
         )
 
-
 class UserSchoolSerializer(serializers.ModelSerializer):
     schoolName = serializers.CharField(source='school.name')
     startYear = serializers.IntegerField(required=False)
@@ -74,8 +73,9 @@ class GetProfileSerializer(serializers.ModelSerializer):
     region = serializers.CharField()
     contact = serializers.CharField()
     detail = serializers.CharField()
-    image = serializers.ImageField(use_url=True, allow_null=True)
+    image = serializers.CharField()
     profile_created = serializers.BooleanField()
+
     school = serializers.SerializerMethodField()
     company = serializers.SerializerMethodField()
 
@@ -107,11 +107,10 @@ class GetProfileSerializer(serializers.ModelSerializer):
 class UserDetailSerializer(serializers.ModelSerializer):
     firstName = serializers.CharField(source='user.first_name', required=False)
     lastName = serializers.CharField(source='user.last_name', required=False)
-
-    detail = serializers.CharField(allow_blank=True)
-    image = serializers.ImageField(use_url=True, allow_null=True)
-    region = serializers.CharField(allow_blank=True)
-    contact = serializers.CharField(allow_blank=True)
+    detail = serializers.CharField(allow_blank=True, required=False)
+    image = serializers.CharField()
+    region = serializers.CharField(allow_blank=True, required=False)
+    contact = serializers.CharField(allow_blank=True, required=False)
     profile_created = serializers.BooleanField(allow_null=True)
 
     class Meta:
@@ -208,7 +207,7 @@ class SocialSerializer(serializers.ModelSerializer):
         )
 
 class SocialImageSerializer(serializers.ModelSerializer):
-    image = serializers.ImageField(use_url=True)
+    image = serializers.CharField()
 
     class Meta:
         model = UserProfile

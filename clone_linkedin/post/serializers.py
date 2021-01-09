@@ -6,6 +6,7 @@ from post.models import Post, PostReaction, Comment
 
 class PostSerializer(serializers.ModelSerializer):
     userId = serializers.IntegerField(source='user.id', read_only=True)
+    userImage = serializers.CharField(source='user.linkedin_user.image', read_only=True)
     userFirstName = serializers.CharField(source='user.first_name', read_only=True)
     userLastName = serializers.CharField(source='user.last_name', read_only=True)
     user_id = serializers.IntegerField(write_only=True)
@@ -22,6 +23,7 @@ class PostSerializer(serializers.ModelSerializer):
             'updatedAt',
             'modified',
             'userId',
+            'userImage',
             'userFirstName',
             'userLastName',
             'user_id',
@@ -47,6 +49,7 @@ class PostSerializer(serializers.ModelSerializer):
 
 class PostDetailSerializer(serializers.ModelSerializer):
     userId = serializers.IntegerField(source='user.id')
+    userImage = serializers.CharField(source='user.linkedin_user.image', read_only=True)
     userFirstName = serializers.CharField(source='user.first_name')
     userLastName = serializers.CharField(source='user.last_name')
     postReactions = serializers.SerializerMethodField() 
@@ -65,6 +68,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
             'updatedAt',
             'modified',
             'userId',
+            'userImage',
             'userFirstName',
             'userLastName',
             'userSchool',
@@ -125,6 +129,7 @@ class PostReactionSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     userId = serializers.IntegerField(source='user.id', read_only=True)
+    userImage = serializers.CharField(source='user.linkedin_user.image', read_only=True)
     userFirstName = serializers.CharField(source='user.first_name', read_only=True)
     userLastName = serializers.CharField(source='user.last_name', read_only=True)
     user_id = serializers.IntegerField(write_only=True)
@@ -139,6 +144,7 @@ class CommentSerializer(serializers.ModelSerializer):
             'createdAt',
             'updatedAt',
             'userId',
+            'userImage',
             'userFirstName',
             'userLastName',
             'createdAt',
